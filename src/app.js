@@ -1,3 +1,8 @@
+/**
+ * @module app
+ * @description Express application setup. Configures middleware (JSON parsing, CORS,
+ * cookie-parser) and mounts the auth and music route handlers.
+ */
 const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");

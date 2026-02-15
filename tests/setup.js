@@ -1,17 +1,20 @@
+// Set ALL test env vars BEFORE any app module (or config.js) is loaded.
+// dotenv does NOT overwrite existing env vars, so these take precedence.
+process.env.JWT_SECRET = "test-jwt-secret-key";
+process.env.IMAGEKIT_PRIVATE_KEY = "test-private-key";
+process.env.MONGODB_URI = "placeholder"; // overwritten in beforeAll with real memory server URI
+
 const mongoose = require("mongoose");
 const { MongoMemoryServer } = require("mongodb-memory-server");
 
 let mongoServer;
 
-// Set dummy env vars before any app modules are loaded
-process.env.IMAGEKIT_PRIVATE_KEY = "test-private-key";
-
 beforeAll(async () => {
   mongoServer = await MongoMemoryServer.create();
   const uri = mongoServer.getUri();
 
+  // Override the placeholder with the actual in-memory URI
   process.env.MONGODB_URI = uri;
-  process.env.JWT_SECRET = "test-jwt-secret-key";
 
   await mongoose.connect(uri);
 });

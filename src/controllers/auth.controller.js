@@ -1,7 +1,20 @@
 const userModel = require("../models/user.model");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const config = require("../config/config");
 
+/**
+ * @description Register a new user. Hashes the password, creates the user in the database,
+ * generates a JWT token, and sets it as a cookie.
+ * @param {import('express').Request} req - Express request object
+ * @param {Object} req.body - Request body
+ * @param {string} req.body.username - The username for the new user
+ * @param {string} req.body.email - The email for the new user
+ * @param {string} req.body.password - The plaintext password
+ * @param {"user"|"artist"} [req.body.role="user"] - The role of the user
+ * @param {import('express').Response} res - Express response object
+ * @returns {Promise<import('express').Response>} JSON response with user data or error message
+ */
 const registerUser = async (req, res) => {
   try {
     const { username, email, password, role = "user" } = req.body;
@@ -29,9 +42,9 @@ const registerUser = async (req, res) => {
 
     const token = jwt.sign(
       { id: user._id, role: user.role },
-      process.env.JWT_SECRET,
+      config.jwtSecret,
       {
-        expiresIn: "1d",
+        expiresIn: config.jwtExpiresIn,
       },
     );
 
@@ -52,6 +65,17 @@ const registerUser = async (req, res) => {
   }
 };
 
+/**
+ * @description Authenticate a user with email/username and password.
+ * Verifies credentials, generates a JWT token, and sets it as a cookie.
+ * @param {import('express').Request} req - Express request object
+ * @param {Object} req.body - Request body
+ * @param {string} [req.body.username] - The username (either username or email required)
+ * @param {string} [req.body.email] - The email (either username or email required)
+ * @param {string} req.body.password - The plaintext password
+ * @param {import('express').Response} res - Express response object
+ * @returns {Promise<import('express').Response>} JSON response with user data or error message
+ */
 const loginUser = async (req, res) => {
   try {
     const { username, email, password } = req.body;
@@ -72,9 +96,9 @@ const loginUser = async (req, res) => {
 
     const token = jwt.sign(
       { id: user._id, role: user.role },
-      process.env.JWT_SECRET,
+      config.jwtSecret,
       {
-        expiresIn: "1d",
+        expiresIn: config.jwtExpiresIn,
       },
     );
 
@@ -95,6 +119,12 @@ const loginUser = async (req, res) => {
   }
 };
 
+/**
+ * @description Log out the current user by clearing the token cookie.
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @returns {Promise<import('express').Response>} JSON response confirming logout
+ */
 const logoutUser = async (req, res) => {
   try {
     res.clearCookie("token");
