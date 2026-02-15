@@ -8,6 +8,7 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const authRoutes = require("./routes/auth.routes.js");
 const musicRoutes = require("./routes/music.routes.js");
+const errorHandler = require("./middlewares/error.middleware.js");
 
 const app = express();
 
@@ -17,5 +18,8 @@ app.use(cookieParser());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/music", musicRoutes);
+
+// Global error handler — must be registered after all routes
+app.use(errorHandler);
 
 module.exports = app;
